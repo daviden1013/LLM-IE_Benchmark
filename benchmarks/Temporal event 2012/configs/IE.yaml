@@ -1,0 +1,23 @@
+---
+  ##############################
+  # IE processing parameters
+  ##############################
+  # directory for original text
+  txt_dir: /home/daviden1013/Documents/David_projects/LLM_information_extraction_benchmark/benchmarks/ADE medication 2018/data/text/
+  # directory for annotated files
+  ann_dir: /home/daviden1013/Documents/David_projects/LLM_information_extraction_benchmark/benchmarks/ADE medication 2018/data/ann/
+  # directory for IE files
+  IE_dir: /home/daviden1013/Documents/David_projects/LLM_information_extraction_benchmark/benchmarks/ADE medication 2018/IE/
+  # action to handle overlapping entities
+  overlap_entity_action: priority
+  # rank for overlapping entities, the prior the higher priority
+  overlap_entity_rank: 
+    - Duration
+    - ADE
+    - Reason
+    - Dosage
+    - Route
+    - Frequency
+    - Form
+    - Strength
+    - Drug

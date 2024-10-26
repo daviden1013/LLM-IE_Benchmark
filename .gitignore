@@ -1,0 +1,23 @@
+# compiled files
+*.pyc
+
+# internal
+scripts/
+
+# data
+benchmarks/ADE medication 2018/data/
+benchmarks/PHI de-identification 2014/data/
+benchmarks/Temporal event 2012/data/
+*.ann
+*.xml
+*.ie
+*.llmie
+
+# log
+benchmarks/ADE medication 2018/log/
+benchmarks/PHI de-identification 2014/log/
+benchmarks/Temporal event 2012/log/
+
+# External packages
+benchmarks/PHI de-identification 2014/i2b2_evaluation_scripts-master/
+benchmarks/Temporal event 2012/TemporalEvaluationScripts/

@@ -1,0 +1,84 @@
+# Task description
+This is a named entity recognition task. Given a medical note, annotate the events (EVENT) and time expressions (TIMEX3):
+
+# Schema definition
+Your output should contain: 
+    "entity_text": the exact wording as mentioned in the note.
+    "entity_type": type of the entity. It should be one of the "EVENT" or "TIMEX3".
+    if entity_type is "EVENT",
+        "type": the event type as one of the "TEST", "PROBLEM", "TREATMENT", "CLINICAL_DEPT", "EVIDENTIAL", or "OCCURRENCE".
+        "polarity": whether an EVENT is positive ("POS") or negative ("NAG"). For example, in “the patient reports headache, and denies chills”, the EVENT [headache] is positive in its polarity, and the EVENT [chills] is negative in its polarity.
+        "modality": whether an EVENT actually occurred or not. Must be one of the "FACTUAL", "CONDITIONAL", "POSSIBLE", or "PROPOSED".
+
+    if entity_type is "TIMEX3",
+        "type": the type as one of the "DATE", "TIME", "DURATION", or "FREQUENCY".
+        "val": the numeric value 1) DATE: [YYYY]-[MM]-[DD], 2) TIME: [hh]:[mm]:[ss], 3) DURATION: P[n][Y/M/W/D]. So, “for eleven days” will be 
+represented as “P11D”, meaning a period of 11 days. 4)  R[n][duration], where n denotes the number of repeats. When the n is omitted, the expression denotes an unspecified amount of repeats. For example, “once a day for 3 days” is “R3P1D” (repeat the time interval of 1 day (P1D) for 3 times (R3)), twice every day is “RP12H” (repeat every 12 hours)
+        "mod": additional information regarding the temporal value of a time expression. Must be one of the:
+            “NA”: the default value, no relevant modifier is present;  
+            “MORE”, means “more than”, e.g. over 2 days (val = P2D, mod = MORE);  
+            “LESS”, means “less than”, e.g. almost 2 months (val = P2M, mod=LESS); 
+            “APPROX”, means “approximate”, e.g. nearly a week (val = P1W, mod=APPROX);  
+            “START”, describes the beginning of a period of time, e.g.  Christmas morning, 2005 (val= 2005-12-25, mod= START).  
+            “END”, describes the end of a period of time, e.g. late last year, (val = 2010, mod = END)
+            “MIDDLE”, describes the middle of a period of time, e.g. mid-September 2001 (val = 2001-09, mod = MIDDLE) 
+
+# Output format definition
+Your output should follow JSON format, 
+if there are one of the EVENT or TIMEX3 entity mentions:
+    [
+        {"entity_text": "<Exact entity mentions as in the note>", "entity_type": "EVENT", "type": "<event type>", "polarity": "<event polarity>", "modality": "<event modality>"},
+        {"entity_text": "<Exact entity mentions as in the note>", "entity_type": "TIMEX3", "type": "<TIMEX3 type>", "val": "<time value>", "mod": "<additional information>"}
+        ...
+     ]
+if there is no entity mentioned in the given sentence, just output an empty list:
+    []
+
+I am only interested in the extracted contents in []. Do NOT explain your answer.
+
+# Examples
+Below are some examples:
+
+Input: At 9/7/93 , 1:00 a.m. , intravenous fluids rate was decreased to 50 cc&apos;s per hour , total fluids given during the first 24 hours were 140 to 150 cc&apos;s per kilo per day .
+Output: [{"entity_text": "intravenous fluids", "entity_type": "EVENT", "type": "TREATMENT", "polarity": "POS", "modality": "FACTUAL"},
+         {"entity_text": "decreased", "entity_type": "EVENT", "type": "OCCURRENCE", "polarity": "POS", "modality": "FACTUAL"},
+         {"entity_text": "total fluids", "entity_type": "EVENT", "type": "TREATMENT", "polarity": "POS", "modality": "FACTUAL"}, 
+         {"entity_text": "9/7/93 , 1:00 a.m.", "entity_type": "TIMEX3", "type": "TIME", "val": "1993-09-07T01:00", "mod": "NA"},
+         {"entity_text": "24 hours", "entity_type": "TIMEX3", "type": "DURATION", "val": "PT24H", "mod": "NA"}]
+
+Input: At that time it appeared well adhered to the underlying skin .
+Output: [{"entity_text": "it", "entity_type": "EVENT", "type": "TREATMENT", "polarity": "POS", "modality": "FACTUAL"},
+         {"entity_text": "well adhered", "entity_type": "EVENT", "type": "OCCURRENCE", "polarity": "POS", "modality": "FACTUAL"}]
+
+Input: LAD and LCX were stented , but PLB could not be crossed by guidewire ( were collaterals ) .
+Output: [{"entity_text": "stented", "entity_type": "EVENT", "type": "TREATMENT", "polarity": "POS", "modality": "FACTUAL"},
+         {"entity_text": "guidewire", "entity_type": "EVENT", "type": "TREATMENT", "polarity": "POS", "modality": "FACTUAL"}]
+
+Input: Postoperatively , she diuresed very well .
+Output: [{"entity_text": "diuresed", "entity_type": "EVENT", "type": "OCCURRENCE", "polarity": "POS", "modality": "FACTUAL"}]
+
+Input: Brief Hospital Course : Mr. Williams was admitted to Hallmark Health System on 05-08 and taken to the operating room with Dr. Barber for a CABGx2 and AVR w/ 25 mm pericardial valve .
+Output: [{"entity_text": "admitted", "entity_type": "EVENT", "type": "OCCURRENCE", "polarity": "POS", "modality": "FACTUAL"},
+         {"entity_text": "Hallmark Health System", "entity_type": "EVENT", "type": "CLINICAL_DEPT", "polarity": "POS", "modality": "FACTUAL"},
+         {"entity_text": "the operating room", "entity_type": "EVENT", "type": "CLINICAL_DEPT", "polarity": "POS", "modality": "FACTUAL"},
+         {"entity_text": "a CABGx2", "entity_type": "EVENT", "type": "TREATMENT", "polarity": "POS", "modality": "FACTUAL"},
+         {"entity_text": "AVR", "entity_type": "EVENT", "type": "TREATMENT", "polarity": "POS", "modality": "FACTUAL"},
+         {"entity_text": "25 mm pericardial valve", "entity_type": "EVENT", "type": "TREATMENT", "polarity": "POS", "modality": "FACTUAL"},
+         {"entity_text": "05-08", "entity_type": "TIMEX3", "type": "DATE", "val": "2017-05-08", "mod": "NA"}]
+
+Input: She continued to require pressor support in the high 30 &apos;s .
+Output: [{"entity_text": "the initial primary cancer", "entity_type": "EVENT", "type": "PROBLEM", "polarity": "POS", "modality": "POSSIBLE"}]
+
+Input: She was seen at A Memorial Hospital where her blood pressure was measured at 240/120 and was found to have a mild left hemiparesis .
+Output: [{"entity_text": "A Memorial Hospital", "entity_type": "EVENT", "type": "CLINICAL_DEPT", "polarity": "POS", "modality": "FACTUAL"},
+         {"entity_text": "her blood pressure", "entity_type": "EVENT", "type": "TEST", "polarity": "POS", "modality": "FACTUAL"},
+         {"entity_text": "a mild left hemiparesis", "entity_type": "EVENT", "type": "PROBLEM", "polarity": "POS", "modality": "FACTUAL"}]
+
+Input: She had worsening abdominal pain on exam .
+Output: [{"entity_text": "worsening abdominal pain", "entity_type": "EVENT", "type": "PROBLEM", "polarity": "POS", "modality": "FACTUAL"},
+         {"entity_text": "exam", "entity_type": "EVENT", "type": "TEST", "polarity": "POS", "modality": "FACTUAL"}]
+
+
+# Input placeholder
+Below is the entire medical note for your reference. I will feed you with sentences from it one by one. 
+"{{input}}"

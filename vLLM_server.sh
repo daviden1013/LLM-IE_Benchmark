@@ -1,0 +1,1 @@
+CUDA_VISIBLE_DEVICES=1,2,3,4 vllm serve meta-llama/Meta-Llama-3.1-70B-Instruct --api-key EMPTY --tensor-parallel-size 4 --enable-prefix-caching --download-dir /data/ehsu/.cache/

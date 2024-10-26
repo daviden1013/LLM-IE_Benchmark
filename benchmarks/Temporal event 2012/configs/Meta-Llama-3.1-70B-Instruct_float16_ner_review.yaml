@@ -1,0 +1,10 @@
+---
+  run_name: Meta-Llama-3.1-70B-Instruct_float16_ner_review
+  log_dir: /home/ehsu/David_projects/LLM-IE_benchmark/benchmarks/Temporal event 2012/log/
+  id_file: /home/ehsu/David_projects/LLM-IE_benchmark/benchmarks/Temporal event 2012/doc_id/test_id
+  base_url: http://localhost:8000/v1
+  prompt_template: /home/ehsu/David_projects/LLM-IE_benchmark/benchmarks/Temporal event 2012/prompt_templates/NER_basic.txt
+  review_prompt_template: /home/ehsu/David_projects/LLM-IE_benchmark/benchmarks/Temporal event 2012/prompt_templates/NER_review.txt
+  system_prompt: "You are a highly skilled clinical AI assistant, proficient in reviewing clinical notes and performing accurate information extraction"
+  out_dir: /home/ehsu/David_projects/LLM-IE_benchmark/benchmarks/Temporal event 2012/llmie/
+  IE_dir: /home/ehsu/David_projects/LLM-IE_benchmark/benchmarks/Temporal event 2012/IE/

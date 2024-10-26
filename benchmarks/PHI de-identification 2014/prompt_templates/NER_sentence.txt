@@ -1,0 +1,77 @@
+# Task description
+This is a named entity recognition task. Given a medical note, annotate the Protected Health Information (PHI):
+
+1. NAME
+	a. NAME_PATIENT
+	b. NAME_DOCTOR
+	c. NAME_USERNAME
+2. PROFESSION
+3. LOCATION
+	a. LOCATION_HOSPITAL
+	b. LOCATION_ORGANIZATION
+	c. LOCATION_STREET
+	d. LOCATION_CITY
+	e. LOCATION_STATE
+	f. LOCATION_COUNTRY
+	g. LOCATION_ZIP
+	h. LOCATION_LOCATION-OTHER
+4. AGE
+5. DATE
+6. CONTACT
+	a. CONTACT_PHONE
+	b. CONTACT_FAX
+	c. CONTACT_EMAIL
+	d. CONTACT_URL
+7. ID
+	a. ID_BIOID
+	b. ID_DEVICE
+	c. ID_HEALTHPLAN
+	d. ID_IDNUM
+	e. ID_MEDICALRECORD
+
+# Schema definition
+Your output should contain: 
+    "entity_text": the exact wording as mentioned in the note.
+    "entity_type": type of the entity. It should be one of the "NAME_PATIENT", "NAME_DOCTOR", "NAME_USERNAME", "PROFESSION", "LOCATION_HOSPITAL", "LOCATION_ORGANIZATION", "LOCATION_STREET", "LOCATION_CITY", "LOCATION_STATE", "LOCATION_COUNTRY", "LOCATION_ZIP", "LOCATION_LOCATION-OTHER", "AGE", "DATE", "CONTACT_PHONE", "CONTACT_FAX", "CONTACT_EMAIL", "CONTACT_URL", "ID_BIOID", "ID_DEVICE", "ID_HEALTHPLAN", "ID_IDNUM", "ID_MEDICALRECORD".
+
+# Output format definition
+Your output should follow JSON format, 
+if there are some of the entities above mentioned:
+    [{"entity_text": "<Exact entity mentions as in the note>", "entity_type": "<entity type as listed above>"},
+     {"entity_text": "<Exact entity mentions as in the note>", "entity_type": "<entity type as listed above>"}]
+if there is no entity mentioned in the given sentence, just output an empty list:
+    []
+
+I am only interested in the extracted contents in []. Do NOT explain your answer.
+
+# Examples
+Below are some examples:
+
+Input: Medical Decision Making ED Course  75M w/acute on chronic low back and left buttock pain, now improved after pain medication in the ED.
+Output: [{"entity_text": "75", "entity_type": "AGE"}]
+
+Input: 2079, Resumed oral hypoglycemic agent 11/86.
+Output: [{"entity_text": "2079", "entity_type": "DATE"}, {"entity_text": "11/86", "entity_type": "DATE"}]
+
+Input: Ms. Yerger's postoperative  course was notable for persistent pleural effusion and transient  episode of atrial fibrillation.
+Output: [{"entity_text": "Yerger", "entity_type": "NAME_PATIENT"}]
+
+Input: 3/06/2120 3:50 p.m.  Time paged:3:38 p.m.  Tine Called Back: 3:42 p.m.  Time Reccs given: 4:30 p.m.    Consulted by:  ED for L. facial droop, dysarthria; English speaking, interviewed  with translator    HPI: Ms. Lindsay is 76y.o.
+Output: [{"entity_text": "3/06/2120", "entity_type": "DATE"}, {"entity_text": "English", "entity_type": "LOCATION_COUNTRY"}, {"entity_text": "Lindsay", "entity_type": "NAME_PATIENT"}, {"entity_text": "76", "entity_type": "AGE"}]
+
+Input: On 9/25/75 in the morning he had a fall when getting out of bed and struck his head, and brought to the ED.
+Output: [{"entity_text": "9/25/75", "entity_type": "DATE"}]
+
+Input: She will continue 3x/week dialysis in her Educare-Pullman outpatient unit.
+Output: [{"entity_text": "Educare-Pullman", "entity_type": "LOCATION_HOSPITAL"}]
+
+Input: [vmf47] ENT:Patient's airway is intact.
+Output: [{"entity_text": "vmf47", "entity_type": "NAME_USERNAME"}]
+
+Input: ROS:  No chest pain, change in bowels, trouble with urination     SH:  Lives with wife  Decorator for income  Neither using ETOH     EXAM:  BP 142/60 P 80 wt 174 lbs  Appears well  Eyes- no lid lag, full motion, full fields, Neck- small thyroid, Lungs-  clear, Cor0RR S1 S2 S4, Abd- +
+Output: [{"entity_text": "Decorator", "entity_type": "PROFESSION"}]
+
+
+# Input placeholder
+Below is the entire medical note for your reference. I will feed you with sentences from it one by one. 
+"{{input}}"

@@ -1,0 +1,9 @@
+---
+  run_name: Meta-Llama-3.1-70B-Instruct_float16_ner_sentence
+  log_dir: /home/ehsu/David_projects/LLM-IE_benchmark/benchmarks/PHI de-identification 2014/log/
+  id_file: /home/ehsu/David_projects/LLM-IE_benchmark/benchmarks/PHI de-identification 2014/doc_id/test_id
+  base_url: http://localhost:8000/v1
+  prompt_template: /home/ehsu/David_projects/LLM-IE_benchmark/benchmarks/PHI de-identification 2014/prompt_templates/NER_sentence.txt
+  system_prompt: "You are a highly skilled clinical AI assistant, proficient in reviewing clinical notes and performing accurate information extraction"
+  out_dir: /home/ehsu/David_projects/LLM-IE_benchmark/benchmarks/PHI de-identification 2014/llmie/
+  IE_dir: /home/ehsu/David_projects/LLM-IE_benchmark/benchmarks/PHI de-identification 2014/IE/

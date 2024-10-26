@@ -1,0 +1,1 @@
+python evaluate.py phi <system> <gold>

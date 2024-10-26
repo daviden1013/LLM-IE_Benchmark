@@ -1,0 +1,12 @@
+Review the input and your output again. If you find some entities were missed, add them below. Do NOT regenerate your output.
+
+# Output format definition
+Your output should follow JSON format, 
+if there are one of the EVENT or TIMEX3 entity mentions:
+    [
+        {"entity_text": "<Exact entity mentions as in the note>", "entity_type": "EVENT", "type": "<event type>", "polarity": "<event polarity>", "modality": "<event modality>"},
+        {"entity_text": "<Exact entity mentions as in the note>", "entity_type": "TIMEX3", "type": "<TIMEX3 type>", "val": "<time value>", "mod": "<additional information>"}
+        ...
+     ]
+if there is no entity mentioned in the given note, just output an empty list:
+    []

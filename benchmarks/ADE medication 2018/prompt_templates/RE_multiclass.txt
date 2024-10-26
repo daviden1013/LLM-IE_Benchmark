@@ -1,0 +1,119 @@
+# Task description
+This is a multi-class relation extraction task. Given a region of interest (ROI) text and two frames from a medical note, classify the relation types between the two frames. 
+
+# Schema definition
+    Strength-Drug: this is a relationship between the drug strength and its name.
+    Dosage-Drug: this is a relationship between the drug dosage and its name.
+    Duration-Drug: this is a relationship between a drug duration and its name.
+    Frequency-Drug: this is a relationship between a drug frequency and its name.
+    Form-Drug: this is a relationship between a drug form and its name.
+    Route-Drug: this is a relationship between the route of administration for a drug and its name.
+    Reason-Drug: this is a relationship between the reason for which a drug was administered (e.g., symptoms, diseases, etc.) and a drug name.
+    ADE-Drug: this is a relationship between an adverse drug event (ADE) and a drug name. 
+
+# Output format definition
+    Choose one of the relation types listed below or choose "No Relation":
+    {{pos_rel_types}}
+
+    Your output should follow the JSON format:
+    {"RelationType": "<relation type or No Relation>"}
+
+    I am only interested in the content between {}. Do not explain your answer. 
+
+# Examples
+    ROI text: ...as needed for insomnia.
+9. ranitidine HCl 150 mg Tablet Sig: Two (2) Tablet PO HS (at
+bedtime).
+10. <entity_2>nicotine</entity_2> 21 mg/24 hr <entity_1>Patch</entity_1> 24 hr Sig: One (1) Patch 24 hr
+Transdermal DAILY (Daily).
+11. senna 8.6 mg Tablet Sig: One (1) Tabl...
+    Output: {"RelationType": "Form-Drug"}
+
+    ROI text: ...A NECK W&W/O
+CONTRAST   Clip # [**Clip Number (Radiology) 81046**]
+Reason: eval for bleed
+Contrast: <entity_2>MAGNEVIST</entity_2> Amt: <entity_1>20</entity_1>
+
+
+
+[**Hospital 93**] MEDICAL CONDITION:
+   31 M bodybuilder, stritching yesterday he had sudden ons...
+    Output: {"RelationType": "Dosage-Drug"}
+
+    ROI text: ...n 0.4 mg PO DAILY
+RX *tamsulosin 0.4 mg 1 Capsule(s) by mouth daily Disp #*30
+Capsule Refills:*0
+3. <entity_2>Ciprofloxacin HCl</entity_2> 250 mg PO <entity_1>Q12H</entity_1> UTI Duration: 5 Days
+4. metoprolol
+5. ASA 325mg
+6. lisinopril
+
+Discharge Medications:
+1. Pantoprazo...
+    Output: {"RelationType": "Frequency-Drug"}
+
+    ROI text: ...uodenoscopies.
+
+ALLERGIES:  Possible allergy to CODEINE (that causes fever).
+
+MEDICATIONS AT HOME:  <entity_2>Nadolol</entity_2> 20 mg by mouth <entity_1>in the evening</entity_1>.
+
+SOCIAL HISTORY:  History of alcohol use.  Tobacco use until
+the [**2149**].  Intravenous drug use...
+    Output: {"RelationType": "Frequency-Drug"}
+
+    ROI text: ...ry
+tree. A dudodenal stent was placed due to external compression
+of the duodenum. He was placed on <entity_2>propofol</entity_2> for sedation and his
+SBP's dropped to the 80's in the PACU. He was started on neo
+through a PIV for pressure support.
+
+In the ICU the neo was rapidly weaned and he was extubated
+easily [**11-5**]. It was thought that his inability to extubate
+post-procedure and <entity_1>hypotension</entity_1> were due to sedation rather than
+aspiration given his rapid improvement.
+
+ROS: 10 point review of s...
+    Output: {"RelationType": "ADE-Drug"}
+
+    ROI text: ...on. She was given 2 SL nitroglycerin, 4 IV morphine, and
+zofran. Her CP resolved after morphine and <entity_2>nitro</entity_2> x<entity_1>2</entity_1>, however she
+became hypotensive to 80's 30 minutes following nitroglycerin.
+Her BP subsequently res...
+    Output: {"RelationType": "Dosage-Drug"}
+
+    ROI text: ...ast Name (NamePattern4) **]. [**First Name (STitle) 216**], in one week.
+
+DISCHARGE MEDICATIONS:
+1. <entity_2>Protonix</entity_2> <entity_1>40 mg</entity_1> p.o. b.i.d.
+2. Tramadol 50 mg p.o. q. 4-6 hours p.r.n.
+3. Prozac 20 mg p.o. q.d.
+
+PENDING STUDIES: ...
+    Output: {"RelationType": "Strength-Drug"}
+
+    ROI text: ...orphine for
+comfort.  On [**4-8**] she passed away.
+
+
+Medications on Admission:
+janumet 50mg/500mg, <entity_2>Plavix</entity_2> <entity_1>75 mg</entity_1>, diltiazem 300 mg, cilostazol
+50 mg, Cymbalta 30 mg, aspirin 81 mg, Zetia 10 mg, simvastatin
+80 mg,...
+    Output: {"RelationType": "Strength-Drug"}
+
+# Hints
+    1. Your input always contains one Drug entity and one attribute entity (e.g., Strength, Dosage).
+    2. Pay attention to the Drug entity and see if the attribute entity is related to it.
+    3. If the attribute entity is for another Drug, output "No Relation". 
+    4. If the attribute entity is for the same Drug but at a different location (span), output "No Relation".
+
+# Entity 1 full information:
+{{frame_1}}
+
+# Entity 2 full information:
+{{frame_2}}
+
+# Input placeholder
+ROI Text with the two entities annotated with <entity_1> and <entity_2>:
+"{{roi_text}}"
