@@ -82,7 +82,7 @@ def main():
     loop = tqdm(IEs, total=len(IEs), leave=True)
     for ie in loop:
         loop.set_description(f"doc_id: {ie.doc_id}")
-        frames = extractor.extract_frames(text_content=ie['text'], entity_key="entity_text", stream=True)
+        frames = extractor.extract_frames(text_content=ie['text'], entity_key="entity_text", stream=False)
         doc = LLMInformationExtractionDocument(doc_id=ie['doc_id'], text=ie['text'])
         for frame in frames:
             doc.add_frame(frame, valid_mode="span", create_id=True)
