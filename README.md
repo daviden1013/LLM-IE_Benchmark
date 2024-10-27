@@ -1,5 +1,4 @@
-This is a benchmark repo for the [LLM-IE](https://github.com/daviden1013/llm-ie) Python package. The 2012, 2014, and 2018 i2b2/ n2c2 datasets are used for benchmarking. Note that the datasets are NOT included in this repo in compliance to the data user agreements. To access the datasets, please refer to the [DBMI data portal](https://portal.dbmi.hms.harvard.edu/projects/n2c2-nlp/). 
-
+This is a benchmark repo for the [LLM-IE](https://github.com/daviden1013/llm-ie) Python package. We used a synthesized medical note from GPT-4 for a system-wised evaluation. The 2012, 2014, and 2018 i2b2/ n2c2 datasets are used for benchmarking. Note that the datasets are NOT included in this repo in compliance to the data user agreements. To access the datasets, please refer to the [DBMI data portal](https://portal.dbmi.hms.harvard.edu/projects/n2c2-nlp/). 
 
 
 ## Table of Contents
@@ -9,9 +8,13 @@ This is a benchmark repo for the [LLM-IE](https://github.com/daviden1013/llm-ie)
     - [Named Entity Recognition](#named-entity-recognition)
     - [Entity Attribute Extraction](#entity-attribute-extraction)
     - [Relation Extraction](#relation-extraction)
-
+    - [System Evaluation](#system-evaluation)
 
 ## Overview
+We utilized the LLE-IE package to build an information extraction pipeline for the drug, condition, and ADE entities, attributes, and relations. For all the frames extracted by the Frame extractor, the attribute “*Type*” represents the frame type as one of the “*Drug*”, “*Condition*”, or “*ADE*”. If the Type is “*Drug*”, “*Dosage*” and “*Frequency*” are extracted as additional attributes. If the Type is “*Condition*”, an “*Assertion*” attribute is assigned. The relations between a “*Condition*” frame and a “*Drug*” frame and between an “*ADE*” frame and a “*Drug*” frame are extracted by the Relation extractor. We visualized the results with the `viz_render()` method and displayed them on a browser. 
+
+<div align="center"><img src=llm-ie_demo.PNG width=1000 ></div>
+
 For the NER and EA tasks, the Sentence Frame Extractor achieved the best F1 scores, while consuming more GPU time. The Review Frame Extractor had higher recall than the Basic Frame Extractor on all NER tasks. 
 
 <div align="center">
@@ -613,6 +616,11 @@ pip install llm-ie==0.3.1
 pip install vllm==0.5.4
 ```
 
+For visualization, our plug-in package `ie-viz` is needed.
+```python
+pip install ie-viz==0.1.4
+```
+
 We used the [OpenAI compatible server](https://docs.vllm.ai/en/v0.6.0/serving/openai_compatible_server.html) to run Llama-3.1-70B-Instruct. 
 
 ```cmd
@@ -765,4 +773,121 @@ for doc in loop:
     relations = extractor.extract_relations(doc=doc, stream=False)
     doc.add_relations(relations)
     doc.save(os.path.join(config['out_dir'], config['run_name'], f"{doc.doc_id}.llmie"))
+```
+
+### System Evaluation
+The GPT-4 synthesized medical note and the full code is available [demo_ADE_extraction.py](demo_ADE_extraction.py). 
+
+Import LLM-IE
+```python
+from llm_ie.engines import LlamaCppInferenceEngine
+from llm_ie.extractors import SentenceFrameExtractor, BinaryRelationExtractor
+from llm_ie.data_types import LLMInformationExtractionDocument
+```
+
+The medical note
+
+```python
+note_text = """**Patient:** John Doe, 45 M  
+**Physician:** Dr. Emily Johnson, Cardiologist, Green Valley Hospital
+
+---
+
+John is a 45-year-old male with a history of hypertension (dx 2015), Type 2 diabetes (dx 2018), and hyperlipidemia. He has been experiencing 
+increased angina episodes since July 2024. He initially presented with complaints of occasional dizziness and fatigue, likely due to 
+Lisinopril 10 mg daily.
+
+**Meds Adjustments:**  
+- Lisinopril was reduced to 5 mg daily, but the patient later developed a persistent dry cough (suspected ADR). Switched to Losartan 50 mg daily, 
+which resolved the cough.
+- Added Atorvastatin 20 mg daily in May 2024 for cholesterol control but caused muscle cramps. Switched to Rosuvastatin 10 mg daily in June 2024.
+- Noticed palpitations and headaches since starting Sitagliptin 100 mg daily for better glucose control. Reduced to 50 mg due to GI upset and 
+added Pantoprazole 20 mg.
+
+**Current Meds:**  
+- Losartan 50 mg daily  
+- Metformin 500 mg BID  
+- Rosuvastatin 10 mg daily  
+- Sitagliptin 50 mg daily + Pantoprazole 20 mg daily  
+- Carvedilol 12.5 mg BID (increased from 6.25 mg for angina)
+
+---
+
+**Plan:**  
+Dr. Johnson advised John to monitor his blood pressure closely and keep a log of any side effects or new symptoms, especially related to the 
+recent medication changes. Follow-up scheduled for October 2024 to reassess symptom control, particularly regarding angina frequency and GI 
+symptoms.
+"""
+```
+
+We use Llama.cpp to run Meta-Llama-3.1-70B-Instruct with int8 quantization. 
+
+```python
+llm = LlamaCppInferenceEngine(repo_id="bullerwins/Meta-Llama-3.1-70B-Instruct-GGUF",
+	                          gguf_filename="Meta-Llama-3.1-70B-Instruct-Q8_0-00001-of-00002.gguf",
+                              n_ctx=16000,
+                              verbose=False)
+```
+
+The named entity recognition and entity attribute extraction are performed end-to-end.
+
+```python
+# Define extractor
+extractor = SentenceFrameExtractor(llm, prompt_template, system_prompt="You are a helpful medical AI assistant.")
+
+# Extract
+frames =  extractor.extract_frames(note_text, entity_key="EntityText", stream=True)
+
+# Check extractions
+for frame in frames:
+    print(frame.to_dict())
+
+# Define document
+doc = LLMInformationExtractionDocument(doc_id="Meidcal note", text=note_text)
+
+# Add frames to document
+doc.add_frames(frames, valid_mode="span", create_id=True)
+```
+
+Relation extraction
+
+```python
+
+from typing import List
+
+def possible_relation_func(frame_1, frame_2) -> bool:
+    # If the two frames are > 500 characters apart, we assume "No Relation"
+    if abs(frame_1.start - frame_2.start) > 500:
+        return []
+    
+    # If the two frames are "Medication" and "Strength", the only possible relation types are "Strength-Drug" or "No Relation"
+    if (frame_1.attr["Type"] == "Drug" and frame_2.attr["Type"] == "Condition") or \
+        (frame_2.attr["Type"] == "Drug" and frame_1.attr["Type"] == "Condition"):
+        return True
+    
+    # If the two frames are "Medication" and "Frequency", the only possible relation types are "Frequency-Drug" or "No Relation"
+    if (frame_1.attr["Type"] == "Drug" and frame_2.attr["Type"] == "ADE") or \
+        (frame_2.attr["Type"] == "Drug" and frame_1.attr["Type"] == "ADE"):
+        return True
+
+    return False
+
+# Define relation extractor
+relation_extractor = BinaryRelationExtractor(llm, prompt_template=prompt_template, possible_relation_func=possible_relation_func)
+
+# Extract multi-class relations
+relations = relation_extractor.extract_relations(doc, stream=True)
+
+# Add to document
+doc.add_relations(relations)
+```
+
+To visualize, we render the results to HTML and save to file. 
+
+```python
+html = doc.viz_render(color_attr_key="Type")
+
+import os
+with open(os.path.join("demo_ADE_extraction.html"), "w") as f:
+    f.write(html)
 ```
