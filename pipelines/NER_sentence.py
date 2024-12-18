@@ -63,7 +63,7 @@ def main():
     logging.info("Loading inference engine...")
     engine = OpenAIInferenceEngine(base_url=config['base_url'],
                                    api_key="EMPTY",
-                                   model="meta-llama/Meta-Llama-3.1-70B-Instruct")
+                                   model="meta-llama/Llama-3.3-70B-Instruct")
     
     """ Define extractor """
     logging.info("Define inference engine...")

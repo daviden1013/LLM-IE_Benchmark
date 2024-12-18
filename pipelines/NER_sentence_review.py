@@ -74,7 +74,7 @@ def main():
     extractor = SentenceReviewFrameExtractor(inference_engine=engine,
                                                 prompt_template=prompt_template,
                                                 review_prompt=review_prompt_template,
-                                                review_mode="addition", 
+                                                review_mode=config['review_mode'], 
                                                 system_prompt=config['system_prompt'])
     
     """ Extract """

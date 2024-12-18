@@ -1,0 +1,25 @@
+************* Aggregated Scores: *************
+            EVENT:
+               Precision :      0.8937
+               Recall :         0.7174
+               Average P&R :    0.7959
+               F measure :      0.7959
+               --------------
+               type :           0.6434
+               Polarity :       0.6899
+               Modality :       0.6753
+
+
+************* Aggregated Scores: *************
+
+
+            TIMEX3:
+                Precision :     0.8262
+                Recall :        0.7824
+                Average P&R :   0.8037
+                F measure :     0.8037
+                --------------
+                type :          0.6126
+                Val :           0.5170
+                Modifier :      0.7049
+
